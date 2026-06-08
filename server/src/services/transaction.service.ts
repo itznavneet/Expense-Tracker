@@ -27,3 +27,20 @@ export async function getTransactions(userId:string) {
         }
     });
 }
+export async function deleteTransactionbyId(id:string, userId:string) {
+    const transaction= await prisma.transaction.findFirst({
+        where:{
+        id,
+        userId
+    }
+    });
+
+    if(!transaction)
+        throw new Error("Transaction not found");
+
+    return prisma.transaction.delete({
+        where: {
+            id
+        }
+    });
+}

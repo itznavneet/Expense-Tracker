@@ -6,4 +6,5 @@ export interface Transaction {
     description?: string;
     type: "INCOME" | "EXPENSE";
     date: string;
+    onDelete?: (id: string) => void;
 }

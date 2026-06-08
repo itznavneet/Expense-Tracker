@@ -1,9 +1,11 @@
 "use client";
 import SummaryCard from "@/components/SummaryCard";
 import ExpenseChart from "@/components/ExpenseChart";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
+import CategoryBreakdown from "@/components/CategoryBreakdown";
+import DashBoardSkeleton from "@/components/DashBoardSkeleton";
 
 export default function DashboardPage() {
 
@@ -12,6 +14,7 @@ export default function DashboardPage() {
     expense: 0,
     balance: 0,
   });
+  const [categoryData, setCategoryData] = useState([]);
   const[loading, setLoading]= useState(true);
 
   const fetchSummary = async() => {
@@ -32,10 +35,30 @@ export default function DashboardPage() {
   }
 }
 
+const fetchCategoryAnalysis= async()=>{
+  const token =
+      localStorage.getItem("token");
+  const response= await api.get("/dashboard/category-analysis",{
+    headers:{
+      Authorization: `Bearer ${token}`,
+    }
+  });
+
+  setCategoryData(response.data.data);
+}
+
 useEffect(() => {
   fetchSummary();
+  fetchCategoryAnalysis();
 },[]);
 
+if (loading) {
+  return (
+    <div>
+      <DashBoardSkeleton/>
+    </div>
+  );
+}
   return (
     <div className="space-y-6">
 
@@ -49,7 +72,7 @@ useEffect(() => {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         <SummaryCard
           title="Income"
@@ -79,6 +102,29 @@ useEffect(() => {
     <ExpenseChart income={summary.income}
   expense={summary.expense}/>
   </CardContent>
+</Card>
+
+<Card>
+
+  <CardHeader>
+
+    <CardTitle>
+      Expense Breakdown
+    </CardTitle>
+    <CardDescription>
+  Where your money goes
+</CardDescription>
+
+  </CardHeader>
+
+  <CardContent>
+
+    <CategoryBreakdown
+      data={categoryData}
+    />
+
+  </CardContent>
+
 </Card>
     </div>
   );

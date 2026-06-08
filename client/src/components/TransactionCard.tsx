@@ -1,22 +1,30 @@
+"use client";
 import { Card } from "@/components/ui/card";
+import { Trash2 } from "lucide-react";
 
 interface TransactionCardProps {
+  id:string;
   title: string;
   amount: number;
   type: "INCOME" | "EXPENSE";
   category: string;
   description?: string;
   date: string;
+  onDelete?: (id: string) => void
 }
 
 export default function TransactionCard({
+  id,
   title,
   amount,
   type,
   category,
   description,
-  date
+  date,
+  onDelete
 }: TransactionCardProps) {
+
+  
  
   return (
     <Card className="p-4">
@@ -47,21 +55,28 @@ export default function TransactionCard({
 
     <div className="text-right">
 
-      <p
-        className={`font-bold text-lg ${
-          type === "INCOME"
-            ? "text-green-600"
-            : "text-red-600"
-        }`}
-      >
-        ₹{amount}
-      </p>
+  <p
+    className={`font-bold text-lg ${
+      type === "INCOME"
+        ? "text-green-600"
+        : "text-red-600"
+    }`}
+  >
+    ₹{amount}
+  </p>
 
-      <span className="text-xs">
-        {type}
-      </span>
+  <span className="text-xs">
+    {type}
+  </span>
 
-    </div>
+</div>
+
+<button
+  onClick={() => onDelete?.(id)}
+  className="text-red-500 hover:text-red-700"
+>
+  <Trash2 size={18} />
+</button>
 
   </div>
 

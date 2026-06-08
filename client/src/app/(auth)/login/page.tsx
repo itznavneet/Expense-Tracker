@@ -7,15 +7,19 @@ import { useState } from "react";
 import Link from "next/link";
 import api from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import axios from "axios";
 
 export default function LoginPage() {
     const router= useRouter();
 
     const [email, setEmail] = useState("");
 const [password, setPassword] = useState("");
+const [loading, setLoading] = useState(false);
 
 const handleLogin= async () => {
     try {
+      setLoading(true);
         
         const response= await api.post("/auth/login", {
             email,
@@ -29,8 +33,17 @@ const handleLogin= async () => {
 
         router.push("/dashboard");
     } catch (error) {
-        console.log(error)
+      if (axios.isAxiosError(error)) {
+
+  toast.error(
+    error.response?.data?.message ||
+    "Something went wrong"
+  );
+
+}
         
+    }finally{
+      setLoading(false);
     }
 }
 
@@ -68,9 +81,9 @@ const handleLogin= async () => {
     </div>
 
   <Button
-  className="w-full mt-4" onClick={handleLogin}
+  className="w-full mt-4" onClick={handleLogin} disabled={loading}
 >
-  Login
+  {loading? "Logging in..." : "Login"}
 </Button>
 
 <p className="text-center mt-4">

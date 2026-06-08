@@ -3,7 +3,7 @@ import { TransactionSchema } from '../validators/transaction.validator';
 import { createTransaction, getTransactions } from '../services/transaction.service';
 import { ZodError } from 'zod';
 import { AuthRequest } from '../types/auth.types';
-import { getTotalExpense, getTotalIncome } from '../services/dashboard.service';
+import { getCategoryAnalyis, getTotalExpense, getTotalIncome } from '../services/dashboard.service';
 
 export async function getSummary(req:AuthRequest, res:Response){
     try{
@@ -27,6 +27,17 @@ export async function getSummary(req:AuthRequest, res:Response){
             }});
     
         }catch (error) {
+            return res.status(500).json({success: false, message: 'Server error'});
+        }
+    }
+
+    export const getCategoryController= async(req:AuthRequest, res:Response) => {
+        try {
+            const data= await getCategoryAnalyis(req.userId!);
+
+            return res.status(200).json({success: true, data});
+        } catch (error) {
+            console.log(error)
             return res.status(500).json({success: false, message: 'Server error'});
         }
     }

@@ -1,6 +1,6 @@
 import {Request, Response} from 'express';
 import { TransactionSchema } from '../validators/transaction.validator';
-import { createTransaction, getTransactions } from '../services/transaction.service';
+import { createTransaction, deleteTransactionbyId, getTransactions } from '../services/transaction.service';
 import { ZodError } from 'zod';
 import { AuthRequest } from '../types/auth.types';
 
@@ -46,5 +46,22 @@ export async function getAllTransactions(req:AuthRequest, res:Response){
    });
 }
     }
+export async function deleteTransaction(req:AuthRequest, res:Response){
+    try{
+            
+            const id= req.params.id as string;
+            await deleteTransactionbyId(id, req.userId!);
+    
+            
+            return res.status(200).json({success: true, message:"Transaction deleted successfully"});
+    
+        }catch(error){
+   return res.status(404).json({
+      success:false,
+      message:error instanceof Error ? error.message : "Server error"
+   });
+}
+    }
+
 
     

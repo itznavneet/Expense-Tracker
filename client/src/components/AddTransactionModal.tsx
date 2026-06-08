@@ -20,6 +20,7 @@ import {
 import { useState } from "react";
 import api from "@/lib/api";
 import axios from "axios";
+import { toast } from "sonner";
 
 interface Props {
   type: "INCOME" | "EXPENSE";
@@ -32,6 +33,8 @@ export default function AddTransactionModal({ type, onSuccess }: Props) {
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const incomeCategories = [
     "Salary",
@@ -55,6 +58,7 @@ export default function AddTransactionModal({ type, onSuccess }: Props) {
 
  const handleSave = async () => {
   try {
+    setLoading(true);
 
     const token =
       localStorage.getItem("token");
@@ -77,29 +81,39 @@ export default function AddTransactionModal({ type, onSuccess }: Props) {
           },
         }
       );
-      onSuccess?.();
 
-    console.log(
-      "Created",
-      response.data
-    );
+    toast.success(
+  "Transaction added successfully"
+);
+setTitle("");
+  setAmount("");
+  setCategory("");
+  setDescription("");
+  setDate("");
+  setOpen(false)
+
+      onSuccess?.();
 
   } catch (error) {
     console.error(error);
-  }
+    if (axios.isAxiosError(error)) {
 
-  setTitle("");
-setAmount("");
-setCategory("");
-setDescription("");
-setDate("");
-  
+  toast.error(
+    error.response?.data?.message ||
+    "Something went wrong"
+  );
+
+}
+  }finally{
+    setLoading(false);
+    
+  }
 };
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant={type === "INCOME" ? "default" : "outline"}>
-          Add {type}
+          + Add {type}
         </Button>
       </DialogTrigger>
 
@@ -146,8 +160,8 @@ setDate("");
             onChange={(e) => setDate(e.target.value)}
           />
 
-          <Button className="w-full" onClick={handleSave}>
-            Save
+          <Button className="w-full" onClick={handleSave} disabled={loading}>
+            {loading ? "Saving..." : "Save"}
           </Button>
         </div>
       </DialogContent>

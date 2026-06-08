@@ -6,9 +6,11 @@ import { LayoutDashboard, LogOut, ReceiptText } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function Sidebar() {
   const router = useRouter();
+  const pathname= usePathname();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
 
@@ -54,18 +56,29 @@ useEffect(() => {
 
       <nav className="p-4 space-y-2">
 
-  <Link
-    href="/dashboard"
-    className="flex items-center gap-2 rounded-lg p-3 hover:bg-muted"
-  >
+  <Link 
+  href="/dashboard" 
+  className={`flex items-center gap-2 rounded-lg p-3 ${
+    pathname === '/dashboard' 
+      ? 'bg-muted font-semibold' 
+      : 'hover:bg-muted'
+  }`}
+>
+
     <LayoutDashboard size={18} />
     Dashboard
   </Link>
 
   <Link
-    href="/transactions"
-    className="flex items-center gap-2 rounded-lg p-3 hover:bg-muted"
-  >
+  href="/transactions"
+  className={`flex items-center gap-2 rounded-lg p-3 transition-colors
+
+  ${
+    pathname === "/transactions"
+      ? "bg-muted font-semibold"
+      : "hover:bg-muted"
+  }`}
+>
     <ReceiptText size={18} />
     Transactions
   </Link>

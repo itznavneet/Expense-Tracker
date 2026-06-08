@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import api from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import axios from "axios";
 
 
 export default function RegisterPage() {
@@ -20,8 +22,11 @@ export default function RegisterPage() {
   const [password, setPassword] =
     useState("");
 
+    const [loading, setLoading]= useState(false);
+
     const handleRegister = async () => {
       try {
+        setLoading(true);
         const response= await api.post("/auth/register", {
           name,
           email,
@@ -33,9 +38,21 @@ export default function RegisterPage() {
         setEmail("");
         setPassword("");
 
+        toast.success(
+  "Account created successfully"
+);
         router.push("/login");
       } catch (error) {
-        console.error("Error registering user:", error);
+        if (axios.isAxiosError(error)) {
+
+  toast.error(
+    error.response?.data?.message ||
+    "Something went wrong"
+  );
+
+}
+      }finally{
+        setLoading(false);
       }
     };
 
@@ -81,8 +98,8 @@ export default function RegisterPage() {
 
         </div>
 
-        <Button className="w-full mt-4" onClick={handleRegister}>
-          Register
+        <Button className="w-full mt-4" onClick={handleRegister} disabled={loading}>
+          {loading ? "Registering..." : "Register"}
         </Button>
 
         <p className="text-center mt-4">

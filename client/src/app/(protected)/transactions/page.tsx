@@ -7,6 +7,8 @@ import React from "react";
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import { Transaction } from "@/types/transaction";
+import { toast } from "sonner";
+import TransactionSkeleton from "@/components/TransactionSkeleton";
 
 export default function page() {
 
@@ -48,6 +50,25 @@ const [loading, setLoading] =
   }
 };
 
+const handleDelete= async(id:string) => {
+    try {
+      const token= localStorage.getItem("token");
+      await api.delete(`/transactions/${id}`, {headers: {Authorization: `Bearer ${token}`}});
+
+      toast.success(
+      "Transaction deleted"
+    );
+    fetchTransactions();
+    } catch (error) {
+       console.error(error);
+
+    toast.error(
+      "Failed to delete transaction"
+    );
+
+    }
+  }
+
 useEffect(() => {
   fetchTransactions();
 }, []);
@@ -55,7 +76,7 @@ useEffect(() => {
  if (loading) {
   return (
     <div>
-      Loading...
+      <TransactionSkeleton/>
     </div>
   );
 }
@@ -64,27 +85,43 @@ useEffect(() => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Transactions</h1>
-
-        <div className="space-x-2">
+      
+        <div className="flex flex-col md:flex-row  space-y-2 md:space-x-2">
           <AddTransactionModal type="INCOME" onSuccess={fetchTransactions} />
 
           <AddTransactionModal type="EXPENSE" onSuccess={fetchTransactions} />
         </div>
       </div>
      
-      <div className="space-y-4">
+     {transactions.length==0 ? (
+        <div className="flex flex-col items-center justify-center py-20">
+
+    <h2 className="text-2xl font-semibold">
+      No transactions yet
+    </h2>
+
+    <p className="text-muted-foreground mt-2">
+      Add your first income or expense
+      to start tracking finances.
+    </p>
+
+  </div>):(
+           <div className="space-y-4">
         {transactions.map((transaction) => (
           <TransactionCard
   key={transaction.id}
+  id={transaction.id}
   title={transaction.title}
   amount={transaction.amount}
   category={transaction.category}
   description={transaction.description}
   date={transaction.date}
   type={transaction.type}
+  onDelete={handleDelete}
 />
         ))}
       </div>
+        )}
     </div>
   );
 }
