@@ -21,6 +21,13 @@ import { useState } from "react";
 import api from "@/lib/api";
 import axios from "axios";
 import { toast } from "sonner";
+import { Controller, useForm } from "react-hook-form";
+import {
+  TransactionFormData,
+  TransactionSchema,
+} from "@/lib/validators/transaction";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 
 interface Props {
   type: "INCOME" | "EXPENSE";
@@ -28,11 +35,6 @@ interface Props {
 }
 
 export default function AddTransactionModal({ type, onSuccess }: Props) {
-  const [title, setTitle] = useState("");
-  const [amount, setAmount] = useState("");
-  const [category, setCategory] = useState("");
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -56,59 +58,43 @@ export default function AddTransactionModal({ type, onSuccess }: Props) {
 
   const categories = type === "INCOME" ? incomeCategories : expenseCategories;
 
- const handleSave = async () => {
-  try {
-    setLoading(true);
+  const form = useForm<TransactionFormData>({
+    resolver: zodResolver(TransactionSchema),
+  });
 
-    const token =
-      localStorage.getItem("token");
+  const handleSave = async (values: TransactionFormData) => {
+    try {
+      setLoading(true);
 
-    const response =
-      await api.post(
+      const token = localStorage.getItem("token");
+
+      const response = await api.post(
         "/transactions",
         {
-          title,
-          amount: Number(amount),
-          category,
-          description,
-          date,
+          ...values,
           type,
         },
         {
           headers: {
-            Authorization:
-              `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
-    toast.success(
-  "Transaction added successfully"
-);
-setTitle("");
-  setAmount("");
-  setCategory("");
-  setDescription("");
-  setDate("");
-  setOpen(false)
+      toast.success("Transaction added successfully");
+      form.reset();
+      setOpen(false);
 
       onSuccess?.();
-
-  } catch (error) {
-    console.error(error);
-    if (axios.isAxiosError(error)) {
-
-  toast.error(
-    error.response?.data?.message ||
-    "Something went wrong"
-  );
-
-}
-  }finally{
-    setLoading(false);
-    
-  }
-};
+    } catch (error) {
+      console.error(error);
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Something went wrong");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -123,46 +109,93 @@ setTitle("");
         </DialogHeader>
 
         <div className="space-y-4">
-          <Input
-            placeholder="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-4">
+            <Controller
+              name="title"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Title</FieldLabel>
 
-          <Input
-            placeholder="Amount"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-          />
+                  <Input placeholder="Title" {...field} />
 
-          <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select Category" />
-            </SelectTrigger>
+                  {fieldState.error && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
 
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Input
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
+            <Controller
+              name="amount"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Amount</FieldLabel>
 
-          <Input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
+                  <Input type="number" placeholder="Amount" {...field} />
 
-          <Button className="w-full" onClick={handleSave} disabled={loading}>
-            {loading ? "Saving..." : "Save"}
-          </Button>
+                  {fieldState.error && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="category"
+              control={form.control}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Category" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            <Controller
+              name="description"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Description</FieldLabel>
+
+                  <Input placeholder="Description" {...field} />
+
+                  {fieldState.error && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="date"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Date</FieldLabel>
+
+                  <Input type="date" {...field} />
+
+                  {fieldState.error && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Saving..." : "Save"}
+            </Button>
+          </form>
         </div>
       </DialogContent>
     </Dialog>

@@ -10,33 +10,37 @@ import api from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import axios from "axios";
+import { RegisterFormData, RegisterSchema } from "@/lib/validators/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, Controller } from "react-hook-form";
+import { Field, FieldLabel, FieldError } from "@/components/ui/field";
+
 
 
 export default function RegisterPage() {
     const router= useRouter();
 
-  const [name, setName] = useState("");
-
-  const [email, setEmail] = useState("");
-
-  const [password, setPassword] =
-    useState("");
-
+  const form= useForm<RegisterFormData>({
+    resolver: zodResolver(RegisterSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+  })
     const [loading, setLoading]= useState(false);
 
-    const handleRegister = async () => {
+    const handleRegister = async (values: RegisterFormData) => {
       try {
         setLoading(true);
         const response= await api.post("/auth/register", {
-          name,
-          email,
-          password,
+          name:values.name,
+          email:values.email,
+          password:values.password
         });
 
         console.log(response.data)
-        setName("");
-        setEmail("");
-        setPassword("");
+        form.reset();
 
         toast.success(
   "Account created successfully"
@@ -71,36 +75,60 @@ export default function RegisterPage() {
 
         <div className="space-y-4">
 
-          <Input
-            placeholder="Name"
-            value={name}
-            onChange={(e) =>
-              setName(e.target.value)
-            }
-          />
+       <form onSubmit={form.handleSubmit(handleRegister)}>
+            <Controller
+              name="name"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Name</FieldLabel>
 
-          <Input
-            placeholder="Email"
-            value={email}
-            onChange={(e) =>
-              setEmail(e.target.value)
-            }
-          />
+                  <Input {...field}/>
 
-          <Input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) =>
-              setPassword(e.target.value)
-            }
-          />
+                  {fieldState.error && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="email"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Email</FieldLabel>
+
+                  <Input {...field}/>
+
+                  {fieldState.error && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="password"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Password</FieldLabel>
+
+                  <Input type="password" {...field} />
+
+                  {fieldState.error && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Button className="w-full mt-4" type="submit" disabled={loading}>
+              {loading ? "Registering..." : "Register"}
+            </Button>
+          </form>
 
         </div>
 
-        <Button className="w-full mt-4" onClick={handleRegister} disabled={loading}>
-          {loading ? "Registering..." : "Register"}
-        </Button>
 
         <p className="text-center mt-4">
 
