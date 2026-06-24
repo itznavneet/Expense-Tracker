@@ -39,7 +39,7 @@ useEffect(() => {
 
   return (
     <aside className="w-64 min-h-screen border-r bg-muted/30">
-
+      <div className="p-6 border-b"><h2 className="font-bold text-2xl">Expense Tracker</h2></div>
       <div className="p-6 border-b flex flex-col items-center">
     <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold mb-3">
   {name?.charAt(0).toUpperCase()}
