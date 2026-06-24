@@ -58,7 +58,7 @@ export default function AddTransactionModal({ type, onSuccess }: Props) {
 
   const categories = type === "INCOME" ? incomeCategories : expenseCategories;
 
-  const form = useForm<TransactionFormData>({
+  const form = useForm({
     resolver: zodResolver(TransactionSchema),
   });
 

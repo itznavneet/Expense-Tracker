@@ -25,4 +25,4 @@ export const TransactionSchema =
   });
 
 export type TransactionFormData =
-  z.output<typeof TransactionSchema>;
+  z.infer<typeof TransactionSchema>;
