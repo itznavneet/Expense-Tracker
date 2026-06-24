@@ -28,7 +28,7 @@ export default function LoginPage() {
       password: "",
     },
   });
-  console.log(form);
+  // console.log(form);
 
   const handleLogin = async (values: LoginFormData) => {
     try {

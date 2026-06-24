@@ -4,7 +4,7 @@ export const TransactionSchema =
   z.object({
     title: z
       .string()
-      .min(1, "Required"),
+      .min(2, "Required"),
 
     amount: z.number(),
 
