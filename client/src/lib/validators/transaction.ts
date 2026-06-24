@@ -24,4 +24,5 @@ export const TransactionSchema =
       .min(1, "Required"),
   });
 
-export type TransactionFormData= z.infer<typeof TransactionSchema>
+export type TransactionFormData =
+  z.output<typeof TransactionSchema>;
