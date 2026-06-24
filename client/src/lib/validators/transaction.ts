@@ -6,11 +6,7 @@ export const TransactionSchema =
       .string()
       .min(1, "Required"),
 
-    amount: z.coerce
-      .number()
-      .positive(
-        "Amount must be positive"
-      ),
+    amount: z.number(),
 
     category: z
       .string()

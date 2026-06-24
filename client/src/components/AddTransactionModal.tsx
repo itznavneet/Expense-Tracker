@@ -58,9 +58,17 @@ export default function AddTransactionModal({ type, onSuccess }: Props) {
 
   const categories = type === "INCOME" ? incomeCategories : expenseCategories;
 
-  const form = useForm({
-    resolver: zodResolver(TransactionSchema),
-  });
+ const form = useForm({
+  resolver: zodResolver(TransactionSchema),
+
+  defaultValues: {
+    title: "",
+    amount: 0,
+    category: "",
+    description: "",
+    date: "",
+  },
+});
 
   const handleSave = async (values: TransactionFormData) => {
     try {
@@ -126,22 +134,32 @@ export default function AddTransactionModal({ type, onSuccess }: Props) {
               )}
             />
 
-            <Controller
-              name="amount"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Amount</FieldLabel>
+           <Controller
+  name="amount"
+  control={form.control}
+  defaultValue={0}
+  render={({ field, fieldState }) => (
+    <Field>
+      <FieldLabel>Amount</FieldLabel>
 
-                  <Input type="number" placeholder="Amount" {...field} />
+      <Input
+        type="number"
+        value={field.value}
+        onChange={(e) =>
+          field.onChange(
+            Number(e.target.value)
+          )
+        }
+      />
 
-                  {fieldState.error && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
+      {fieldState.error && (
+        <FieldError
+          errors={[fieldState.error]}
+        />
+      )}
+    </Field>
+  )}
+/>
             <Controller
               name="category"
               control={form.control}
